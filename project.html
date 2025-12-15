@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>GlowLab – Kozmetik Sitesi</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root{
+      --brand:#8E7AB5; --accent:#FF8FAB; --bg:#FFF7FB; --card:#FFFFFF;
+      --text:#222; --muted:#666; --radius:14px;
+      --shadow:0 10px 24px rgba(0,0,0,.08);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:var(--bg);color:var(--text);line-height:1.6;
+    }
+    a{text-decoration:none;color:inherit}
+    h1,h2,h3{margin-bottom:.5rem}
+    .container{max-width:1100px;margin:auto;padding:24px}
+    /* NAV */
+    .nav{
+      position:sticky;top:0;z-index:10;
+      background:#fff;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:14px 24px;box-shadow:0 2px 10px rgba(0,0,0,.05);
+    }
+    .brand{display:flex;align-items:center;gap:8px;font-weight:700}
+    .brand-dot{width:12px;height:12px;border-radius:50%;background:var(--accent)}
+    .nav-links{display:flex;gap:16px;font-weight:600}
+    .nav-links a{padding:6px 10px;border-radius:999px}
+    .nav-links a.active,
+    .nav-links a:hover{background:var(--brand);color:#fff}
+    /* GENEL */
+    .btn{
+      display:inline-block;padding:10px 18px;border-radius:999px;
+      background:var(--brand);color:#fff;font-weight:600;border:none;
+      cursor:pointer;font-size:.9rem;
+    }
+    .btn-secondary{background:#fff;color:var(--brand);border:2px solid var(--brand)}
+    .btn-small{padding:6px 12px;font-size:.8rem}
+    .hero{
+      display:grid;grid-template-columns:1.2fr .8fr;gap:28px;align-items:center;
+      margin:26px 0;
+    }
+    .panel{
+      background:var(--card);padding:24px;border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .hero-img{
+      width:100%;border-radius:var(--radius);
+      box-shadow:var(--shadow);display:block;
+    }
+    .note{font-size:.9rem;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:14px}
+    .card{
+      background:var(--card);border-radius:var(--radius);
+      box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;
+    }
+    .card img{
+      width:100%;height:180px;object-fit:cover;display:block;
+    }
+    .card-body{padding:14px;display:flex;flex-direction:column;gap:6px}
+    .price{font-weight:800;margin-top:4px}
+    .badge{
+      display:inline-block;background:#f3eafd;color:#4b3d6b;
+      padding:4px 10px;border-radius:999px;font-size:.8rem;margin-right:6px;
+    }
+    hr.soft{border:0;height:1px;background:linear-gradient(90deg,transparent,#e5e5e5,transparent);margin:24px 0}
+    input,select,textarea{
+      font:inherit;padding:10px 12px;border-radius:10px;border:1px solid #ddd;
+      width:100%;background:#fff;
+    }
+    textarea{resize:vertical}
+    form .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .filterbar{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+    footer{margin-top:40px;background:#fff}
+    footer .container{padding:18px}
+    /* BÖLÜM GÖRÜNÜRLÜK */
+    section.page{display:none;padding-top:12px;padding-bottom:30px}
+    section.page.active{display:block}
+    /* SEPET butonu & panel */
+    .cart-fab{
+      position:fixed;right:18px;bottom:18px;
+      background:var(--brand);color:#fff;border-radius:999px;
+      padding:10px 14px;display:flex;align-items:center;gap:8px;
+      box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer;font-weight:600;
+      z-index:20;
+    }
+    .cart-fab span{background:#fff;color:var(--brand);border-radius:999px;padding:2px 8px;font-size:.8rem}
+    .cart-panel{
+      position:fixed;right:18px;bottom:70px;width:320px;max-height:70vh;
+      background:#fff;border-radius:16px;box-shadow:0 10px 24px rgba(0,0,0,.25);
+      display:none;flex-direction:column;overflow:hidden;z-index:20;
+    }
+    .cart-panel.open{display:flex}
+    .cart-header{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:10px 14px;border-bottom:1px solid #eee;background:#faf7ff;
+      font-weight:600;
+    }
+    .cart-close{background:none;border:none;font-size:1rem;cursor:pointer}
+    .cart-items{padding:10px 14px;flex:1;overflow:auto;font-size:.9rem}
+    .cart-item{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px}
+    .cart-item-info{flex:1}
+    .cart-qty{display:flex;align-items:center;gap:4px}
+    .cart-qty button{width:22px;height:22px;border-radius:50%;border:1px solid #ccc;background:#fff;font-size:.9rem;cursor:pointer}
+    .cart-footer{border-top:1px solid #eee;padding:10px 14px;font-size:.9rem}
+    .cart-footer-top{display:flex;justify-content:space-between;margin-bottom:8px;font-weight:600}
+    .cart-empty{text-align:center;color:var(--muted);margin-top:10px}
+    .btn-checkout{width:100%;margin-top:4px}
+    /* CANLI DESTEK */
+    .chat-fab{
+      position:fixed;left:18px;bottom:18px;
+      background:#fff;color:var(--brand);border-radius:999px;
+      padding:8px 14px;display:flex;align-items:center;gap:6px;
+      box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer;font-weight:600;
+      z-index:20;font-size:.9rem;
+    }
+    .chat-panel{
+      position:fixed;left:18px;bottom:70px;width:280px;max-height:65vh;
+      background:#fff;border-radius:16px;box-shadow:0 10px 24px rgba(0,0,0,.25);
+      display:none;flex-direction:column;overflow:hidden;z-index:20;
+    }
+    .chat-panel.open{display:flex}
+    .chat-header{padding:8px 12px;background:#faf7ff;border-bottom:1px solid #eee;font-weight:600;font-size:.9rem}
+    .chat-messages{padding:8px 10px;flex:1;overflow:auto;font-size:.85rem;background:#fff}
+    .chat-form{border-top:1px solid #eee;padding:6px}
+    .chat-form input{width:100%;padding:8px 10px;font-size:.85rem}
+    .msg{margin-bottom:6px;max-width:90%}
+    .msg span{display:inline-block;padding:6px 8px;border-radius:12px}
+    .msg.user{text-align:right}
+    .msg.user span{background:var(--brand);color:#fff;border-bottom-right-radius:2px}
+    .msg.bot span{background:#f1ecff;color:#333;border-bottom-left-radius:2px}
+    @media (max-width:900px){
+      .hero{grid-template-columns:1fr}
+      .grid{grid-template-columns:1fr 1fr}
+      .nav{flex-wrap:wrap;gap:10px}
+    }
+    @media (max-width:600px){
+      .grid{grid-template-columns:1fr}
+      form .row{grid-template-columns:1fr}
+      .cart-panel{width:94%;right:3%}
+      .chat-panel{width:88%;left:6%}
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="nav">
+    <div class="brand">
+      <span class="brand-dot" aria-hidden="true"></span>
+      <a href="#home">GlowLab</a>
+    </div>
+    <nav class="nav-links" aria-label="Ana menü">
+      <a href="#home" data-page="home" class="active">Anasayfa</a>
+      <a href="#products" data-page="products">Ürünler</a>
+      <a href="#quiz" data-page="quiz">Cilt Testi & İletişim</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- ANASAYFA -->
+    <section id="home" class="page active">
+      <div class="hero">
+        <div class="panel">
+          <h1>Cildin, saçın ve vücudun parlasın ✨</h1>
+          <p>GlowLab, cilt, saç ve vücut için basit ve güvenilir ürün önerileri sunan
+             öğrenci projesi bir web sitesidir.</p>
+          <p style="margin:10px 0 14px">
+            <button class="btn" data-goto="products">Ürünleri Keşfet</button>
+            <button class="btn btn-secondary" data-goto="quiz">2 Dakikalık Cilt Testi</button>
+          </p>
+          <p class="note">Bu site HTML + CSS + JavaScript ile bir ders projesi olarak tasarlanmıştır.</p>
+        </div>
+        <div class="panel">
+          <img class="hero-img"
+               src="https://glowlab.co.nz/cdn/shop/files/XmasGiftBox_640x640_crop_center.jpg?v=1715635467"
+               alt="Makyaj, saç ve cilt bakım ürünlerinden oluşan estetik bir düzenleme">
+        </div>
+      </div>
+
+      <h2>Öne Çıkan Ürünler</h2>
+      <div class="grid">
+        <article class="card">
+          <img src="https://glowlab.co.nz/cdn/shop/files/SensitiveHydraGelMoisturiser_640x640_crop_center.jpg?v=1715318349"
+               alt="Nemlendirici krem ve lavanta görseli">
+          <div class="card-body">
+            <h3>HydraGlow Nemlendirici</h3>
+            <div>
+              <span class="badge">Bakım</span>
+              <span class="badge">Karma</span>
+            </div>
+            <p class="price">399₺</p>
+          </div>
+        </article>
+        <article class="card">
+          <img src="https://glowlab.co.nz/cdn/shop/files/Body_Lotion_640x640_crop_center.jpg?v=1715320576"
+               alt="Vücut losyonu ve krem görseli">
+          <div class="card-body">
+            <h3>Shea Butter Vücut Losyonu</h3>
+            <div>
+              <span class="badge">Vücut</span>
+              <span class="badge">Tümü</span>
+            </div>
+            <p class="price">219₺</p>
+          </div>
+        </article>
+        <article class="card">
+          <img src="https://glowlab.co.nz/cdn/shop/files/GLOWLABHAIR7027_640x640_crop_center.jpg?v=1733267931"
+               alt="Saç bakım yağı şişesi">
+          <div class="card-body">
+            <h3>Keratin Saç Bakım Yağı</h3>
+            <div>
+              <span class="badge">Saç</span>
+              <span class="badge">Tümü</span>
+            </div>
+            <p class="price">289₺</p>
+          </div>
+        </article>
+      </div>
+
+      <hr class="soft">
+
+      <section aria-labelledby="newsletter">
+        <h2 id="newsletter">Bülten</h2>
+        <p>Kısa bakım rehberleri ve indirim haberleri için e-posta listesine katıl.</p>
+        <form>
+          <div class="row">
+            <label>Ad Soyad
+              <input name="name" required>
+            </label>
+            <label>E-posta
+              <input name="email" type="email" required>
+            </label>
+          </div>
+          <p style="margin-top:12px"><button class="btn" type="submit">Kaydol</button></p>
+        </form>
+        <p class="note">Not: Bu form sadece örnektir; gerçek e-posta göndermez.</p>
+      </section>
+    </section>
+
+    <!-- ÜRÜNLER -->
+    <section id="products" class="page">
+      <h1>Ürün Kataloğu</h1>
+      <p class="note">Filtreleyerek cilt, saç ve vücut ürünlerini rahatça bulabilirsin.</p>
+
+      <div class="filterbar">
+        <input id="q" type="search" placeholder="Ara (örn: serum, şampuan, losyon)">
+        <select id="cat">
+          <option value="*">Tüm Kategoriler</option>
+          <option>Bakım</option>
+          <option>Temizleme</option>
+          <option>Güneş</option>
+          <option>Makyaj</option>
+          <option>Saç</option>
+          <option>Vücut</option>
+        </select>
+        <select id="skin">
+          <option value="*">Tüm Cilt Tipleri</option>
+          <option>Karma</option>
+          <option>Yağlı</option>
+          <option>Kuru</option>
+          <option>Tümü</option>
+        </select>
+      </div>
+
+      <div class="grid" id="productsGrid" aria-live="polite"></div>
+    </section>
+
+    <!-- CİLT TESTİ + İLETİŞİM -->
+    <section id="quiz" class="page">
+      <h1>Cilt Tipi Mini Testi</h1>
+      <p>Bu 3 soruluk test sonucunda tahmini cilt tipin gösterilir.</p>
+
+      <form id="quizForm" style="margin-top:14px">
+        <label>Yüzünde parlama en çok nerede?
+          <select name="oil" required>
+            <option value="low">Az</option>
+            <option value="tzone">T bölgesi</option>
+            <option value="high">Genel olarak çok</option>
+          </select>
+        </label><br><br>
+        <label>Yıkamadan sonra gerginlik hissi?
+          <select name="tight" required>
+            <option value="no">Hayır</option>
+            <option value="yes">Evet</option>
+          </select>
+        </label><br><br>
+        <label>Sivilce/siyah nokta sıklığı?
+          <select name="acne" required>
+            <option value="none">Nadiren</option>
+            <option value="sometimes">Bazen</option>
+            <option value="often">Sık</option>
+          </select>
+        </label><br><br>
+        <button class="btn" type="submit">Sonucu Gör</button>
+      </form>
+
+      <p id="quizResult" class="panel" style="margin-top:14px;display:none;" tabindex="-1"></p>
+
+      <hr class="soft">
+
+      <h2>İletişim</h2>
+      <p class="note">Sorular, öneriler veya proje geri bildirimi için formu doldur.</p>
+      <form>
+        <div class="row">
+          <label>Ad Soyad
+            <input required>
+          </label>
+          <label>E-posta
+            <input type="email" required>
+          </label>
+        </div>
+        <br>
+        <label>Mesajınız
+          <textarea rows="5" required></textarea>
+        </label>
+        <p style="margin-top:12px">
+          <button class="btn" type="submit">Gönder</button>
+        </p>
+      </form>
+
+      <p class="note" style="margin-top:10px">
+        Bu site bir ders projesidir; ticari satış yapılmamaktadır.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>©️ 2025 GlowLab • Kozmetik Web Sitesi Projesi</p>
+    </div>
+  </footer>
+
+  <!-- SEPET KISAYOLU -->
+  <div class="cart-fab" id="cartFab">
+    🛒 Sepet <span id="cartCount">0</span>
+  </div>
+  <div class="cart-panel" id="cartPanel" aria-label="Alışveriş sepeti">
+    <div class="cart-header">
+      <span>Sepet</span>
+      <button class="cart-close" id="cartClose">✕</button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-footer">
+      <div class="cart-footer-top">
+        <span>Toplam</span>
+        <span id="cartTotal">0₺</span>
+      </div>
+      <button class="btn btn-checkout" type="button" id="checkoutBtn">Satın Alma Simülasyonu</button>
+      <p class="note" style="margin-top:6px">Not: Bu sepet yalnızca ders projesi simülasyonudur.</p>
+    </div>
+  </div>
+
+  <!-- CANLI DESTEK -->
+  <div class="chat-fab" id="chatFab">💬 Canlı Destek</div>
+  <div class="chat-panel" id="chatPanel" aria-label="Canlı destek sohbeti">
+    <div class="chat-header">Canlı Destek (Bot)</div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <form class="chat-form" id="chatForm">
+      <input id="chatInput" placeholder="Mesajını yaz..." autocomplete="off">
+    </form>
+  </div>
+
+  <script>
+    // ÜRÜN VERİLERİ – CİLT + SAÇ + VÜCUT
+    const PRODUCTS = [
+      {id:1,name:"HydraGlow Nemlendirici",price:399,category:"Bakım",skin:"Karma",img:"https://glowlab.co.nz/cdn/shop/files/SensitiveHydraGelMoisturiser_640x640_crop_center.jpg?v=1715318349"},
+      {id:2,name:"Velvet Matte Ruj",price:299,category:"Makyaj",skin:"Tümü",img:"https://i.pinimg.com/originals/f4/a0/41/f4a041ea4c6a6882415fb9fe0e3f29a8.jpg"},
+      {id:3,name:"SPF50+ Renk Eşitleyici",price:459,category:"Güneş",skin:"Karma",img:"https://glowlab.co.nz/cdn/shop/files/KeyBenefits2_8724a63d-fb1b-4ac4-ab0a-fddc011e4021_640x640_crop_center.jpg?v=1715317474"},
+      {id:4,name:"C-Vitamin Serumu",price:549,category:"Bakım",skin:"Kuru",img:"https://static.chemistwarehouse.co.nz/ams/media/pi/130314/ADD7_800.jpg"},
+      {id:5,name:"Micellar Temizleyici",price:199,category:"Temizleme",skin:"Yağlı",img:"https://glowlab.co.nz/cdn/shop/files/GelCleanser_640x640_crop_center.jpg?v=1715317908"},
+      {id:6,name:"Hyaluronik Asit Tonik",price:279,category:"Bakım",skin:"Karma",img:"https://glowlab.co.nz/cdn/shop/files/HyaluronicCleanser_770x700_crop_center.jpg?v=1715319449"},
+      {id:7,name:"Blackberry & Bay Body Wash",price:229,category:"Bakım",skin:"Tümü",img:"https://glowlab.co.nz/cdn/shop/files/Blackberry_BayBodyWash_640x640_crop_center.jpg?v=1715320979"},
+      {id:8,name:"Köpük Temizleyici",price:189,category:"Temizleme",skin:"Karma",img:"https://glowlab.co.nz/cdn/shop/files/FaceWashForAcne_640x640_crop_center.jpg?v=1715317902"},
+      {id:9,name:"Yaşlanma Karşıtı Krem",price:329,category:"Bakım",skin:"Tümü",img:"https://glowlab.co.nz/cdn/shop/files/KeyBenefits_a8fd2029-4710-44cc-bef9-748af44e19d7_640x640_crop_center.jpg?v=1715318462"},
+      {id:10,name:"Glowy Highlighter",price:249,category:"Makyaj",skin:"Tümü",img:"https://img.joomcdn.net/e4627d37b1adc29577914b8f3a2e5208931c67da_original.jpeg"},
+      {id:11,name:"Keratin Saç Bakım Yağı",price:289,category:"Saç",skin:"Tümü",img:"https://glowlab.co.nz/cdn/shop/files/GLOWLABHAIR7027_640x640_crop_center.jpg?v=1733267931"},
+      {id:12,name:"Hacim Veren Şampuan",price:169,category:"Saç",skin:"Tümü",img:"https://glowlab.co.nz/cdn/shop/files/Lifestyle_7893913e-4c90-4886-85ca-282ed3c3e77a_640x640_crop_center.jpg?v=1715305120"},
+      {id:13,name:"Shea Butter Vücut Losyonu",price:219,category:"Vücut",skin:"Tümü",img:"https://glowlab.co.nz/cdn/shop/files/Body_Lotion_640x640_crop_center.jpg?v=1715320576"},
+      {id:14,name:"Lime Duş Jeli",price:149,category:"Vücut",skin:"Tümü",img:"https://glowlab.co.nz/cdn/shop/files/KeyBenefits_b161308b-8210-486f-80c6-9b0c9087a2c4_640x640_crop_center.jpg?v=1750907468"}
+    ];
+
+    // SAYFA GEÇİŞLERİ
+    const navLinks = document.querySelectorAll(".nav-links a");
+    const pages = document.querySelectorAll("section.page");
+    function showPage(id){
+      pages.forEach(p=>p.classList.toggle("active", p.id===id));
+      navLinks.forEach(a=>a.classList.toggle("active", a.dataset.page===id));
+      if(location.hash !== "#"+id) history.replaceState(null,"","#"+id);
+    }
+    navLinks.forEach(a=>{
+      a.addEventListener("click", e=>{
+        e.preventDefault();
+        showPage(a.dataset.page);
+      });
+    });
+    document.querySelectorAll("[data-goto]").forEach(btn=>{
+      btn.addEventListener("click", ()=> showPage(btn.dataset.goto));
+    });
+    if(location.hash){
+      const target = location.hash.replace("#","");
+      if(document.getElementById(target)) showPage(target);
+    }
+
+    // ÜRÜN LİSTESİ & FİLTRE
+    function renderProducts(list){
+      const grid = document.getElementById("productsGrid");
+      if(!grid) return;
+      grid.innerHTML = "";
+      list.forEach(p=>{
+        const card = document.createElement("article");
+        card.className="card";
+        card.innerHTML = `
+          <img src="${p.img}" alt="${p.name}">
+          <div class="card-body">
+            <h3>${p.name}</h3>
+            <div>
+              <span class="badge">${p.category}</span>
+              <span class="badge">${p.skin}</span>
+            </div>
+            <p class="price">${p.price}₺</p>
+            <button class="btn btn-small add-to-cart" data-id="${p.id}" type="button">Sepete Ekle</button>
+          </div>`;
+        grid.appendChild(card);
+      });
+    }
+    function setupFilters(){
+      const q = document.getElementById("q");
+      const cat = document.getElementById("cat");
+      const skin = document.getElementById("skin");
+      if(!(q && cat && skin)) return;
+      function apply(){
+        const term = q.value.toLowerCase();
+        const c = cat.value;
+        const s = skin.value;
+        const filtered = PRODUCTS.filter(p =>
+          (c==="*" || p.category===c) &&
+          (s==="*" || p.skin===s) &&
+          p.name.toLowerCase().includes(term)
+        );
+        renderProducts(filtered);
+      }
+      [q,cat,skin].forEach(el=>el.addEventListener("input",apply));
+      renderProducts(PRODUCTS);
+      document.getElementById("productsGrid").addEventListener("click",e=>{
+        const btn = e.target.closest(".add-to-cart");
+        if(btn){
+          const id = Number(btn.dataset.id);
+          addToCart(id);
+        }
+      });
+    }
+
+    // CİLT TESTİ
+    function setupQuiz(){
+      const form = document.getElementById("quizForm");
+      const out = document.getElementById("quizResult");
+      if(!(form && out)) return;
+      form.addEventListener("submit", e=>{
+        e.preventDefault();
+        const oil   = form.elements["oil"].value;
+        const tight = form.elements["tight"].value;
+        const acne  = form.elements["acne"].value;
+        let type = "Normal";
+        if(oil==="high" && acne!=="none") type = "Yağlı";
+        else if(tight==="yes") type = "Kuru";
+        else if(oil==="tzone") type = "Karma";
+        out.textContent = "Tahmini cilt tipin: " + type +
+          ". Ürünler sayfasında \"" + type + "\" veya \"Tümü\" etiketli ürünlere bakabilirsin.";
+        out.style.display="block";
+        out.focus();
+      });
+    }
+
+    // SEPET SİSTEMİ
+    let cart = [];
+    const cartFab = document.getElementById("cartFab");
+    const cartPanel = document.getElementById("cartPanel");
+    const cartClose = document.getElementById("cartClose");
+    const cartCount = document.getElementById("cartCount");
+    const cartItemsEl = document.getElementById("cartItems");
+    const cartTotalEl = document.getElementById("cartTotal");
+    const checkoutBtn = document.getElementById("checkoutBtn");
+
+    function addToCart(id){
+      const product = PRODUCTS.find(p=>p.id===id);
+      if(!product) return;
+      const existing = cart.find(item=>item.id===id);
+      if(existing) existing.qty += 1;
+      else cart.push({id:product.id,name:product.name,price:product.price,qty:1});
+      updateCart();
+      cartPanel.classList.add("open");
+    }
+    function changeQty(id,delta){
+      const item = cart.find(i=>i.id===id);
+      if(!item) return;
+      item.qty += delta;
+      if(item.qty<=0) cart = cart.filter(i=>i.id!==id);
+      updateCart();
+    }
+    function updateCart(){
+      cartItemsEl.innerHTML = "";
+      if(cart.length===0){
+        cartItemsEl.innerHTML = <p class="cart-empty">Sepetiniz boş.</p>;
+      }else{
+        cart.forEach(item=>{
+          const row = document.createElement("div");
+          row.className="cart-item";
+          row.innerHTML = `
+            <div class="cart-item-info">
+              <div>${item.name}</div>
+              <div class="note">${item.price}₺ x ${item.qty}</div>
+            </div>
+            <div class="cart-qty">
+              <button type="button" data-action="dec" data-id="${item.id}">-</button>
+              <span>${item.qty}</span>
+              <button type="button" data-action="inc" data-id="${item.id}">+</button>
+            </div>`;
+          cartItemsEl.appendChild(row);
+        });
+      }
+      const total = cart.reduce((sum,i)=>sum+i.price*i.qty,0);
+      cartTotalEl.textContent = total+"₺";
+      const count = cart.reduce((sum,i)=>sum+i.qty,0);
+      cartCount.textContent = count;
+    }
+    cartFab.addEventListener("click",()=>cartPanel.classList.toggle("open"));
+    cartClose.addEventListener("click",()=>cartPanel.classList.remove("open"));
+    cartItemsEl.addEventListener("click",e=>{
+      const btn = e.target.closest("button[data-action]");
+      if(!btn) return;
+      const id = Number(btn.dataset.id);
+      if(btn.dataset.action==="inc") changeQty(id,1);
+      if(btn.dataset.action==="dec") changeQty(id,-1);
+    });
+    checkoutBtn.addEventListener("click",()=>{
+      if(cart.length===0){
+        alert("Sepet boş görünüyor 😊 Önce ürün eklemeyi dene.");
+      }else{
+        alert("Bu sadece bir ders projesi olduğu için gerçek ödeme alınmıyor. Ama tasarımın hazır! 🎉");
+      }
+    });
+
+    // CANLI DESTEK BOTU
+    const chatFab = document.getElementById("chatFab");
+    const chatPanel = document.getElementById("chatPanel");
+    const chatMessages = document.getElementById("chatMessages");
+    const chatForm = document.getElementById("chatForm");
+    const chatInput = document.getElementById("chatInput");
+
+    function addChatMessage(text,from="bot"){
+      const div = document.createElement("div");
+      div.className = "msg " + (from==="user"?"user":"bot");
+      div.innerHTML = <span>${text}</span>;
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    function getBotReply(text){
+      const t = text.toLowerCase();
+      if(t.includes("kargo") || t.includes("kargom") || t.includes("teslim")){
+        return "Kargo süresi bu projede simüle edilmektedir. Gerçek bir gönderim yok, ama örnek olarak 2-4 iş günü diyebilirsin. 📦";
+      }
+      if(t.includes("iade") || t.includes("değişim")){
+        return "Bu site ders projesi olduğu için gerçek satış ve iade yok. Ama gerçek bir projede 14 gün içinde koşulsuz iade politikası ekleyebilirsin. ♻️";
+      }
+      if(t.includes("ürün") || t.includes("hangi") || t.includes("öner") || t.includes("cilt tipi")){
+        return "Cilt tipine göre öneri için üst menüden 'Cilt Testi'ni çözebilir veya Ürünler sayfasında filtreleri kullanabilirsin. 💄";
+      }
+      if(t.includes("saç")){
+        return "Saç bakımı için 'Saç' kategorisindeki şampuan ve bakım yağını deneyebilirsin. Isıya karşı koruyucu ürün eklemek de iyi olur. 💇‍♀️";
+      }
+      if(t.includes("vücut") || t.includes("duş") || t.includes("losyon")){
+        return "Vücut için shea butter losyon ve lavantalı duş jeli güzel bir ikili olur. Duştan sonra hafif nemli tene uygulamanı öneririm. 🧴";
+      }
+      if(t.includes("fiyat") || t.includes("indirim")){
+        return "Fiyatlar örnek olarak eklenmiştir. Gerçek e-ticaret sitesinde kampanya ve kupon alanı ekleyebilirsin. 💸";
+      }
+      return "Şu an basit bir botum ama menüdeki sayfalar üzerinden birçok bilgilendirici içerik bulabilirsin. Ürünler, Cilt Testi veya Bülten kısmına göz atabilirsin. 🌸";
+    }
+    chatFab.addEventListener("click",()=>{
+      chatPanel.classList.toggle("open");
+      if(chatPanel.classList.contains("open")){
+        if(!chatMessages.hasChildNodes()){
+          addChatMessage("Merhaba, ben GlowLab destek botuyum. Bana kargo, iade, cilt tipi, saç veya vücut bakımı hakkında soru sorabilirsin. 💬");
+        }
+        chatInput.focus();
+      }
+    });
+    chatForm.addEventListener("submit",e=>{
+      e.preventDefault();
+      const text = chatInput.value.trim();
+      if(!text) return;
+      addChatMessage(text,"user");
+      chatInput.value="";
+      setTimeout(()=> addChatMessage(getBotReply(text),"bot"),400);
+    });
+
+    // BAŞLAT
+    setupFilters();
+    setupQuiz();
+  </script>
+</body>
+</html>
